@@ -6,11 +6,15 @@ function App() {
   const [files, setFiles] = useState([]);
   const [metadata, setMetadata] = useState([]); // To store metadata of files
   const [analyzed, setAnalyzed] = useState(false); // To track whether the "Analyze" button was clicked
+  const [uploadProgress, setUploadProgress] = useState({}); // To store progress of each file
+  const [analysisProgress, setAnalysisProgress] = useState({}); // To store analysis progress
 
   const onDrop = (acceptedFiles) => {
     setFiles(acceptedFiles);
     setAnalyzed(false); // Reset analyzed state if new files are uploaded
     setMetadata([]); // Reset metadata if new files are uploaded
+    setUploadProgress({}); // Reset upload progress
+    setAnalysisProgress({}); // Reset analysis progress
     console.log("Files dropped:", acceptedFiles); // Debugging
   };
 
@@ -29,14 +33,44 @@ function App() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress((prevProgress) => ({
+              ...prevProgress,
+              [file.name]: percentCompleted,
+            }));
+            console.log(`File ${file.name} is ${percentCompleted}% uploaded.`);
+          },
         })
         .then((response) => {
+          // Once upload completes, begin file analysis phase
+          setAnalysisProgress((prevProgress) => ({
+            ...prevProgress,
+            [file.name]: "Analyzing...",
+          }));
+
           console.log("File analysis response:", response.data.metadata); // Debugging
           const fileMetadata = response.data.metadata;
-          return { name: file.name, metadata: fileMetadata };
+
+          // Simulate a delay for analysis if needed
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              setAnalysisProgress((prevProgress) => ({
+                ...prevProgress,
+                [file.name]: "Complete",
+              }));
+              resolve({ name: file.name, metadata: fileMetadata });
+            }, 1000); // Simulate some time taken for analysis
+          });
         })
         .catch((error) => {
           console.error("Error uploading file:", error);
+          setAnalysisProgress((prevProgress) => ({
+            ...prevProgress,
+            [file.name]: "Error",
+          }));
           return { name: file.name, metadata: "Error processing file" };
         });
     });
@@ -84,6 +118,24 @@ function App() {
             {analyzed ? "Analyzing..." : "Analyze Files"}
           </button>
         )}
+
+        {/* Display upload progress */}
+        <div className="mt-4">
+          {files.map((file) => (
+            <div key={file.name} className="mb-2">
+              <p>{file.name}</p>
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-1">
+                <div
+                  className="bg-blue-600 h-4 rounded-full"
+                  style={{
+                    width: `${uploadProgress[file.name] || 0}%`,
+                  }}></div>
+              </div>
+              <p>Upload: {uploadProgress[file.name] || 0}%</p>
+              <p>Analysis Status: {analysisProgress[file.name] || "Waiting"}</p>
+            </div>
+          ))}
+        </div>
 
         {/* Display file metadata */}
         <div className="mt-4">
