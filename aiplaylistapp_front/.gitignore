@@ -1,0 +1,31 @@
+# Node.js dependencies
+/node_modules
+/aiplaylistapp_back/node_modules
+/aiplaylistapp_front/node_modules
+
+# Testing outputs
+/coverage
+
+# Production build
+/build
+/aiplaylistapp_front/build
+/aiplaylistapp_back/build
+
+# Ignore env files for different environments
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs and debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+
+# Ignore editor or IDE specific files
+.vscode/
+.idea/
