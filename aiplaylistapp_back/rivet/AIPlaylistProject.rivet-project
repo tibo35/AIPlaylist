@@ -1,0 +1,67 @@
+version: 4
+data:
+  attachedData:
+    trivet:
+      testSuites: []
+      version: 1
+  graphs:
+    2E_e2xaNrJ4nozvM1zSpf:
+      metadata:
+        description: ""
+        id: 2E_e2xaNrJ4nozvM1zSpf
+        name: AIPlaylist
+      nodes:
+        '[el-rjahq1B0sQhgINolSG]:chat "Chat"':
+          data:
+            additionalParameters: []
+            cache: false
+            enableFunctionUse: false
+            maxTokens: 1024
+            model: gpt-3.5-turbo  # Updated to a model you have access to
+            useModelInput: true   # Ensure the model parameter is used
+            parallelFunctionCalling: true
+            prompt: ""
+            stop: ""
+            temperature: 0.5
+            top_p: 1
+            useAdditionalParametersInput: false
+            useAsGraphPartialOutput: true
+            useFrequencyPenaltyInput: false
+            useMaxTokensInput: false
+            usePresencePenaltyInput: false
+            usePromptInput: true
+            useStop: false
+            useStopInput: false
+            useTemperatureInput: false
+            useTopP: false
+            useTopPInput: false
+            useUserInput: false
+          incomingConnections:
+            - prompt<-"Graph Input" tHdB5n5apJhMYe6b0cAON/data
+          outgoingConnections:
+            - response->"Graph Output" v_kFScCiVVzky2Sm5h9yI/value
+          visualData: 890.2889745490943/229.03674462661263/230/32//
+        '[tHdB5n5apJhMYe6b0cAON]:graphInput "Graph Input"':
+          data:
+            dataType: string
+            id: input
+            useDefaultValueInput: false
+          outgoingConnections:
+            - data->"Chat" el-rjahq1B0sQhgINolSG/prompt
+          visualData: 317.08192102614225/234.88341062899093/330/28//
+        '[v_kFScCiVVzky2Sm5h9yI]:graphOutput "Graph Output"':
+          data:
+            dataType: string
+            id: output
+          incomingConnections:
+            - value<-"Chat" el-rjahq1B0sQhgINolSG/response
+          visualData: 1339.3259274801012/353.92978946425524/330/null//
+  metadata:
+    description: ""
+    id: _qSUtIqRoNbvDw3z_wYRb
+    mainGraphId: 2E_e2xaNrJ4nozvM1zSpf
+    title: AIPlaylistProject
+  plugins:
+    - id: google
+      name: Google
+      type: built-in

@@ -8,6 +8,7 @@ function App() {
   const [analyzed, setAnalyzed] = useState(false); // To track whether the "Analyze" button was clicked
   const [uploadProgress, setUploadProgress] = useState({}); // To store progress of each file
   const [analysisProgress, setAnalysisProgress] = useState({}); // To store analysis progress
+  const [extraInput, setExtraInput] = useState(""); // The extra input for testing
 
   const onDrop = (acceptedFiles) => {
     setFiles(acceptedFiles);
@@ -25,14 +26,12 @@ function App() {
     const promises = files.map((file) => {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("extraInput", extraInput); // Append the extra input
 
       console.log("Sending file to backend:", file.name);
 
       return axios
         .post("http://localhost:5001/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -51,19 +50,16 @@ function App() {
             [file.name]: "Analyzing...",
           }));
 
-          console.log("File analysis response:", response.data.metadata); // Debugging
-          const fileMetadata = response.data.metadata;
+          console.log("File analysis response:", response.data);
+          const { metadata, rivetResult } = response.data;
 
-          // Simulate a delay for analysis if needed
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              setAnalysisProgress((prevProgress) => ({
-                ...prevProgress,
-                [file.name]: "Complete",
-              }));
-              resolve({ name: file.name, metadata: fileMetadata });
-            }, 1000); // Simulate some time taken for analysis
-          });
+          // Update analysis progress
+          setAnalysisProgress((prevProgress) => ({
+            ...prevProgress,
+            [file.name]: "Complete",
+          }));
+
+          return { name: file.name, metadata, rivetResult };
         })
         .catch((error) => {
           console.error("Error uploading file:", error);
@@ -106,6 +102,17 @@ function App() {
         </p>
       </div>
 
+      {/* Extra input field */}
+      <div className="mt-4">
+        <input
+          type="text"
+          value={extraInput}
+          onChange={(e) => setExtraInput(e.target.value)}
+          placeholder="Enter extra input for testing"
+          className="border border-gray-400 p-2 rounded w-64"
+        />
+      </div>
+
       <div className="mt-4">
         {files.length > 0 && <p>{files.length} file(s) uploaded.</p>}
 
@@ -119,7 +126,7 @@ function App() {
           </button>
         )}
 
-        {/* Display upload progress */}
+        {/* Display upload and analysis progress */}
         <div className="mt-4">
           {files.map((file) => (
             <div key={file.name} className="mb-2">
@@ -137,7 +144,7 @@ function App() {
           ))}
         </div>
 
-        {/* Display file metadata */}
+        {/* Display file metadata and Rivet result */}
         <div className="mt-4">
           {metadata.length > 0 && (
             <ul>
@@ -147,6 +154,15 @@ function App() {
                   <pre className="bg-gray-200 p-2 rounded">
                     {JSON.stringify(fileMeta.metadata, null, 2)}
                   </pre>
+                  {/* Display Rivet Result if available */}
+                  {fileMeta.rivetResult && (
+                    <div>
+                      <h4 className="font-bold">Rivet Result:</h4>
+                      <pre className="bg-gray-200 p-2 rounded">
+                        {JSON.stringify(fileMeta.rivetResult, null, 2)}
+                      </pre>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
